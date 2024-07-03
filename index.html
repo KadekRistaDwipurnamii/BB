@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Budget Buddy with Vue.js</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-router@3.5.1/dist/vue-router.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -98,14 +99,6 @@
             margin-bottom: 10px;
         }
 
-        .welcome {
-            display: none;
-        }
-
-        .active {
-            display: block;
-        }
-
         .welcome-container {
             background: linear-gradient(to right, #56ccf2, #2f80ed);
             color: white;
@@ -140,67 +133,79 @@
 </head>
 <body>
     <div id="app">
-        <div class="welcome-container" :class="{ active: showWelcome }">
-            <h1>Selamat Datang di Budget Buddy</h1>
-            <p>Aplikasi pengelola keuangan anda</p>
-            <button @click="showWelcome = false">Masuk</button>
-        </div>
-
-        <div class="container" :class="{ active: !showWelcome }">
-            <h1>Budget Buddy</h1>
-            <div class="form">
-                <input type="date" v-model="transaction.date" placeholder="Tanggal">
-                <select v-model="transaction.type">
-                    <option value="Pemasukan">Pemasukan</option>
-                    <option value="Pengeluaran">Pengeluaran</option>
-                </select>
-                <input type="number" v-model.number="transaction.amount" placeholder="Jumlah (dalam ribuan)">
-                <input type="text" v-model="transaction.description" placeholder="Deskripsi">
-                <button @click="addTransaction">Tambah Transaksi</button>
-            </div>
-            <h2>Riwayat Transaksi</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>Jenis</th>
-                            <th>Jumlah</th>
-                            <th>Deskripsi</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(transaction, index) in transactions" :key="index">
-                            <td>{{ transaction.date }}</td>
-                            <td>{{ transaction.type }}</td>
-                            <td>{{ formatCurrency(transaction.amount) }}</td>
-                            <td>{{ transaction.description }}</td>
-                            <td><button class="delete-btn" @click="deleteTransaction(index)">Hapus</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="summary">
-                <div>Total Pemasukan: <span>{{ totalIncome }}</span></div>
-                <div>Total Pengeluaran: <span>{{ totalExpense }}</span></div>
-                <div>Saldo: <span>{{ balance }}</span></div>
-            </div>
-        </div>
+        <router-view></router-view>
     </div>
 
     <script>
-        new Vue({
-            el: '#app',
-            data: {
-                showWelcome: true,
-                transaction: {
-                    date: '',
-                    type: 'Pemasukan',
-                    amount: 0,
-                    description: ''
-                },
-                transactions: [],
+        const Welcome = {
+            template: `
+                <div class="welcome-container">
+                    <h1>Selamat Datang di Budget Buddy</h1>
+                    <p>Aplikasi pengelola keuangan anda</p>
+                    <button @click="goToMain">Masuk</button>
+                </div>
+            `,
+            methods: {
+                goToMain() {
+                    this.$router.push('/main');
+                }
+            }
+        };
+
+        const MainApp = {
+            template: `
+                <div class="container">
+                    <h1>Budget Buddy</h1>
+                    <div class="form">
+                        <input type="date" v-model="transaction.date" placeholder="Tanggal">
+                        <select v-model="transaction.type">
+                            <option value="Pemasukan">Pemasukan</option>
+                            <option value="Pengeluaran">Pengeluaran</option>
+                        </select>
+                        <input type="number" v-model.number="transaction.amount" placeholder="Jumlah (dalam ribuan)">
+                        <input type="text" v-model="transaction.description" placeholder="Deskripsi">
+                        <button @click="addTransaction">Tambah Transaksi</button>
+                    </div>
+                    <h2>Riwayat Transaksi</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Jenis</th>
+                                    <th>Jumlah</th>
+                                    <th>Deskripsi</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(transaction, index) in transactions" :key="index">
+                                    <td>{{ transaction.date }}</td>
+                                    <td>{{ transaction.type }}</td>
+                                    <td>{{ formatCurrency(transaction.amount) }}</td>
+                                    <td>{{ transaction.description }}</td>
+                                    <td><button class="delete-btn" @click="deleteTransaction(index)">Hapus</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="summary">
+                        <div>Total Pemasukan: <span>{{ totalIncome }}</span></div>
+                        <div>Total Pengeluaran: <span>{{ totalExpense }}</span></div>
+                        <div>Saldo: <span>{{ balance }}</span></div>
+                    </div>
+                </div>
+            `,
+            data() {
+                return {
+                    transaction: {
+                        date: '',
+                        type: 'Pemasukan',
+                        amount: 0,
+                        description: ''
+                    },
+                    transactions: []
+                };
             },
             methods: {
                 addTransaction() {
@@ -281,6 +286,20 @@
                     return this.formatCurrency(totalIncome - totalExpense);
                 }
             }
+        };
+
+        const routes = [
+            { path: '/', component: Welcome },
+            { path: '/main', component: MainApp }
+        ];
+
+        const router = new VueRouter({
+            routes
+        });
+
+        new Vue({
+            el: '#app',
+            router
         });
     </script>
 </body>
