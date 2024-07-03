@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -97,48 +97,95 @@
         .summary div {
             margin-bottom: 10px;
         }
+
+        .welcome {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .welcome-container {
+            background: linear-gradient(to right, #56ccf2, #2f80ed);
+            color: white;
+            padding: 40px;
+            border-radius: 8px;
+        }
+
+        .welcome h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .welcome p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .welcome button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #fff;
+            color: #2f80ed;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .welcome button:hover {
+            background-color: #e0e0e0;
+        }
     </style>
 </head>
 <body>
-    <div id="app" class="container">
-        <h1>Budget Buddy</h1>
-        <div class="form">
-            <input type="date" v-model="transaction.date" placeholder="Tanggal">
-            <select v-model="transaction.type">
-                <option value="Pemasukan">Pemasukan</option>
-                <option value="Pengeluaran">Pengeluaran</option>
-            </select>
-            <input type="number" v-model.number="transaction.amount" placeholder="Jumlah (dalam ribuan)">
-            <input type="text" v-model="transaction.description" placeholder="Deskripsi">
-            <button @click="addTransaction">Tambah Transaksi</button>
+    <div id="app">
+        <div class="welcome-container" :class="{ active: showWelcome }">
+            <h1>Selamat Datang di Budget Buddy</h1>
+            <p>Aplikasi pengelola keuangan anda</p>
+            <button @click="showWelcome = false">Masuk</button>
         </div>
-        <h2>Riwayat Transaksi</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tanggal</th>
-                        <th>Jenis</th>
-                        <th>Jumlah</th>
-                        <th>Deskripsi</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(transaction, index) in transactions" :key="index">
-                        <td>{{ transaction.date }}</td>
-                        <td>{{ transaction.type }}</td>
-                        <td>{{ formatCurrency(transaction.amount) }}</td>
-                        <td>{{ transaction.description }}</td>
-                        <td><button class="delete-btn" @click="deleteTransaction(index)">Hapus</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="summary">
-            <div>Total Pemasukan: <span>{{ totalIncome }}</span></div>
-            <div>Total Pengeluaran: <span>{{ totalExpense }}</span></div>
-            <div>Saldo: <span>{{ balance }}</span></div>
+
+        <div class="container" :class="{ active: !showWelcome }">
+            <h1>Budget Buddy</h1>
+            <div class="form">
+                <input type="date" v-model="transaction.date" placeholder="Tanggal">
+                <select v-model="transaction.type">
+                    <option value="Pemasukan">Pemasukan</option>
+                    <option value="Pengeluaran">Pengeluaran</option>
+                </select>
+                <input type="number" v-model.number="transaction.amount" placeholder="Jumlah (dalam ribuan)">
+                <input type="text" v-model="transaction.description" placeholder="Deskripsi">
+                <button @click="addTransaction">Tambah Transaksi</button>
+            </div>
+            <h2>Riwayat Transaksi</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Jenis</th>
+                            <th>Jumlah</th>
+                            <th>Deskripsi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(transaction, index) in transactions" :key="index">
+                            <td>{{ transaction.date }}</td>
+                            <td>{{ transaction.type }}</td>
+                            <td>{{ formatCurrency(transaction.amount) }}</td>
+                            <td>{{ transaction.description }}</td>
+                            <td><button class="delete-btn" @click="deleteTransaction(index)">Hapus</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="summary">
+                <div>Total Pemasukan: <span>{{ totalIncome }}</span></div>
+                <div>Total Pengeluaran: <span>{{ totalExpense }}</span></div>
+                <div>Saldo: <span>{{ balance }}</span></div>
+            </div>
         </div>
     </div>
 
@@ -146,6 +193,7 @@
         new Vue({
             el: '#app',
             data: {
+                showWelcome: true,
                 transaction: {
                     date: '',
                     type: 'Pemasukan',
